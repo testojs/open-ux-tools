@@ -27,7 +27,7 @@ import {
 import { UICheckbox } from '../UICheckbox';
 import { UITextInput } from '../UIInput';
 import { UIDropdown } from '../UIDropdown';
-import type { ComboBoxRef } from '../UIComboBox';
+import type { ComboBoxRef, UIComboBoxRef } from '../UIComboBox';
 import { UIComboBox } from '../UIComboBox';
 import { UIDatePicker } from '../UIDatePicker';
 import {
@@ -415,7 +415,11 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         if (typeof this.props.onSave === 'function' && this.state.editedCell) {
             const { rowIndex, column } = this.state.editedCell;
 
-            if (column?.columnControlType !== ColumnControlType.UIDropdown && !this.state.editedCell.errorMessage) {
+            if (
+                column?.columnControlType !== ColumnControlType.UIComboBox &&
+                column?.columnControlType !== ColumnControlType.UIDropdown &&
+                !this.state.editedCell.errorMessage
+            ) {
                 let compRef: React.RefObject<ITextField | IDropdown | ComboBoxRef> | undefined;
                 if (column && this?.inputRefs?.[rowIndex]?.[column.key]) {
                     compRef = this?.inputRefs[rowIndex][column.key];
@@ -460,7 +464,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         const target = e.target as HTMLElement; // needed for TSC
         if (
             target.closest('.ms-TextField, .ms-ComboBox, .ms-ComboBox-option, .ui-DatePicker') &&
-            !this.props.renderInputs
+            (!this.props.renderInputs || target.closest('.ms-ComboBox-option'))
         ) {
             return;
         }
@@ -726,6 +730,37 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         );
     }
 
+    private _renderComboBox(item: UIDocument, rowIndex: number | undefined, column: UIColumn | undefined): JSX.Element {
+        const compRef = this._getInputRef(rowIndex, column) as React.RefObject<ComboBoxRef>;
+        const options = column?.data.itemDropdownOptions
+            ? item[column?.data.itemDropdownOptions]
+            : column?.data.dropdownOptions;
+        return (
+            <UIComboBox
+                options={item[column?.data?.optionsKey] || options}
+                placeholder="Select an option"
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                defaultSelectedKey={item[column?.key] || column?.data.defaultSelectedKey}
+                hidden={item.hideCells ?? false}
+                componentRef={compRef}
+                onChange={(event: React.FormEvent<HTMLDivElement | UIComboBoxRef>, option?: IComboBoxOption): void => {
+                    if (option?.key !== undefined) {
+                        this.onDropdownCellValueChange(option, item, rowIndex, column);
+                    }
+                }}
+                onPendingValueChanged={(option?: IComboBoxOption, index?: number, value?: string): void => {
+                    if (option?.key !== undefined) {
+                        this.onDropdownCellValueChange(option, item, rowIndex, column);
+                    }
+                }}
+                onKeyDown={this.onKeyDown}
+                highlight={true}
+                allowFreeform={true}
+                useComboBoxAsMenuMinWidth={true}
+                autoComplete="on"></UIComboBox>
+        );
+    }
     /**
      * Renders boolean select.
      *
@@ -734,7 +769,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
      * @param column
      * @returns {any}
      */
-    private _renderBooleanSelect(item: UIDocument, rowIndex?: number, column?: UIColumn): any {
+    private _renderBooleanSelect(item: UIDocument, rowIndex?: number, column?: UIColumn): JSX.Element {
         const compRef = this._getInputRef(rowIndex, column) as React.RefObject<ComboBoxRef>;
         const newValue = this.state.editedCell?.newValue;
 
@@ -841,6 +876,15 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         return element;
     }
 
+    private renderForInputs(item: UIDocument, rowIndex: number, column: UIColumn | undefined) {
+        if (column?.columnControlType === ColumnControlType.UIDropdown) {
+            return this._renderDropdown(item, rowIndex, column);
+        }
+        if (column?.columnControlType === ColumnControlType.UIComboBox) {
+            return this._renderComboBox(item, rowIndex, column);
+        }
+        return this._renderTextInput(item, rowIndex, column);
+    }
     /**
      * On cell render.
      *
@@ -849,13 +893,10 @@ export class UITable extends React.Component<UITableProps, UITableState> {
      * @param column
      * @returns {any}
      */
-    private _onCellRender(item: UIDocument, rowIndex: number | undefined, column: UIColumn | undefined): any {
+    private _onCellRender(item: UIDocument, rowIndex: number | undefined, column: UIColumn | undefined): JSX.Element {
         // inputs & dropdowns always visible
         if (this.props.renderInputs && rowIndex !== undefined) {
-            if (column?.columnControlType === ColumnControlType.UIDropdown) {
-                return this._renderDropdown(item, rowIndex, column);
-            }
-            return this._renderTextInput(item, rowIndex, column);
+            return this.renderForInputs(item, rowIndex, column);
         }
 
         // inputs visible only in "edit mode" (after cell click)
