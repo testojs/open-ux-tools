@@ -755,6 +755,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                     }
                 }}
                 onKeyDown={this.onKeyDown}
+                openMenuOnClick={true}
                 highlight={true}
                 allowFreeform={true}
                 useComboBoxAsMenuMinWidth={true}

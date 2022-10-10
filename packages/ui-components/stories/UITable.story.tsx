@@ -72,6 +72,14 @@ function onSelectionChange(items: []) {
     console.log('selected', items);
 }
 
+function onSelectionChangeComboBox(items: []) {
+    console.log('selected', items);
+}
+
+function onChange(items: []) {
+    console.log('changed', items);
+}
+
 function validate(newValue: any) {
     if (newValue === 'hello') {
         return '"hello" is not allowed here!';
@@ -121,7 +129,7 @@ const dropdownOptions2: UIDropdownOption[] = [
     { key: 'BH', text: 'Bahrain' }
 ];
 
-const columnsWithDropdown: UIColumn[] = Array.from({ length: 5 }).map((item, index) => {
+const columns2: UIColumn[] = Array.from({ length: 5 }).map((item, index) => {
     const col: any = {
         key: 'test' + (index + 1),
         name: 'Test ' + (index + 1),
@@ -142,6 +150,12 @@ const columnsWithDropdown: UIColumn[] = Array.from({ length: 5 }).map((item, ind
     }
     if (index === 1) {
         col.columnControlType = ColumnControlType.UIDropdown;
+        col.data = {
+            dropdownOptions: dropdownOptions2
+        };
+    }
+    if (index === 2) {
+        col.columnControlType = ColumnControlType.UIComboBox;
         col.data = {
             dropdownOptions: dropdownOptions2
         };
@@ -171,7 +185,7 @@ export const EditableTable2 = (): JSX.Element => {
                 <UITable
                     dataSetKey={'datasetkey'}
                     items={items2}
-                    columns={columnsWithDropdown}
+                    columns={columns2}
                     onSave={onSave2}
                     onSelectionChange={onSelectionChange}
                     checkboxVisibility={CheckboxVisibility.always}
