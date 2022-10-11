@@ -749,11 +749,6 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                         this.onDropdownCellValueChange(option, item, rowIndex, column);
                     }
                 }}
-                onPendingValueChanged={(option?: IComboBoxOption, index?: number, value?: string): void => {
-                    if (option?.key !== undefined) {
-                        this.onDropdownCellValueChange(option, item, rowIndex, column);
-                    }
-                }}
                 onKeyDown={this.onKeyDown}
                 openMenuOnClick={true}
                 highlight={true}
