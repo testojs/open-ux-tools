@@ -389,7 +389,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                 (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
             } else if (column?.key) {
                 const otherElement = this.inputRefs?.[rowIndex][column.key]?.current as unknown;
-                (otherElement as HTMLElement).focus();
+                (otherElement as HTMLElement)?.focus();
             }
         });
     }
@@ -583,9 +583,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         if (previousCellHasErrors) {
             return;
         }
-        if (this.props.renderInputs) {
-            return;
-        }
+        // if (this.props.renderInputs) {
+        //     return;
+        // }
 
         const el = e?.target as HTMLElement;
         requestAnimationFrame(() => {
@@ -606,7 +606,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         });
 
         if (rowIndex !== undefined && item && column && column.editable === true) {
-            e?.stopPropagation();
+            // e?.stopPropagation();
             requestAnimationFrame(() => this.startEdit(rowIndex, item, column));
         }
     }
