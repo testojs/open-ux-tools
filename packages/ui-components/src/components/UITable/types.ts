@@ -23,7 +23,7 @@ export enum ColumnControlType {
     UIDatePicker,
     UIComboBox
 }
-export { CheckboxVisibility, SelectionMode, Selection } from '@fluentui/react';
+export { CheckboxVisibility, SelectionMode, Selection, DetailsListLayoutMode, IDropdownOption } from '@fluentui/react';
 
 export type UIDocument = { [key: string]: any };
 export type UIColumn = IColumn & {
