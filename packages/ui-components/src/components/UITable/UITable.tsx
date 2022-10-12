@@ -608,7 +608,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         });
 
         if (rowIndex !== undefined && item && column && column.editable === true) {
-            // e?.stopPropagation();
+            e?.stopPropagation();
             requestAnimationFrame(() => this.startEdit(rowIndex, item, column));
         }
     }
