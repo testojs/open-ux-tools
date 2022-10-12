@@ -235,9 +235,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         const onClick = (e: React.MouseEvent<HTMLElement, MouseEvent> | null) => {
             const target = e?.target as HTMLElement;
             const targetTag = target?.tagName;
-            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) {
-                return;
-            }
+            // if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) {
+            //     return;
+            // }
             const { item, rowIndex, column } = this.activeElement;
             this._onCellClick(e, item, rowIndex || 0, column);
         };
@@ -379,24 +379,26 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                 this.rerenderTable();
             }
         }
-        requestAnimationFrame(() => {
-            if (column?.columnControlType === ColumnControlType.UITextInput) {
-                (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
-            } else if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
-                const combo = this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ComboBoxRef>;
-                getComboBoxInput(combo)?.focus();
-            } else if (column?.columnControlType === ColumnControlType.UIDatePicker) {
-                (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
-            } else if (column?.key) {
-                const otherElement = this.inputRefs?.[rowIndex][column.key]?.current as unknown;
-                (otherElement as HTMLElement)?.focus();
-            }
-        });
+        // requestAnimationFrame(() => {
+        //     if (column?.columnControlType === ColumnControlType.UITextInput) {
+        //         (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
+        //     } else if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
+        //         const combo = this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ComboBoxRef>;
+        //         getComboBoxInput(combo)?.focus();
+        //     } else if (column?.columnControlType === ColumnControlType.UIDatePicker) {
+        //         (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
+        //     } else if (column?.key) {
+        //         const otherElement = this.inputRefs?.[rowIndex][column.key]?.current as unknown;
+        //         if (typeof (otherElement as HTMLElement).focus === 'function') {
+        //             (otherElement as HTMLElement).focus();
+        //         }
+        //     }
+        // });
     }
 
     private rerenderTable(): void {
         if (this.tableRef.current) {
-            this.tableRef.current.forceUpdate();
+            // this.tableRef.current.forceUpdate();
         }
     }
 
@@ -748,6 +750,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                     if (option?.key !== undefined) {
                         this.onDropdownCellValueChange(option, item, rowIndex, column);
                     }
+                }}
+                onClick={(e): void => {
+                    e.stopPropagation();
                 }}
                 onKeyDown={this.onKeyDown}
                 openMenuOnClick={true}
