@@ -379,26 +379,26 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                 this.rerenderTable();
             }
         }
-        // requestAnimationFrame(() => {
-        //     if (column?.columnControlType === ColumnControlType.UITextInput) {
-        //         (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
-        //     } else if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
-        //         const combo = this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ComboBoxRef>;
-        //         getComboBoxInput(combo)?.focus();
-        //     } else if (column?.columnControlType === ColumnControlType.UIDatePicker) {
-        //         (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
-        //     } else if (column?.key) {
-        //         const otherElement = this.inputRefs?.[rowIndex][column.key]?.current as unknown;
-        //         if (typeof (otherElement as HTMLElement).focus === 'function') {
-        //             (otherElement as HTMLElement).focus();
-        //         }
-        //     }
-        // });
+        requestAnimationFrame(() => {
+            if (column?.columnControlType === ColumnControlType.UITextInput) {
+                (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
+            } else if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
+                const combo = this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ComboBoxRef>;
+                getComboBoxInput(combo)?.focus();
+            } else if (column?.columnControlType === ColumnControlType.UIDatePicker) {
+                (this.inputRefs?.[rowIndex][column?.key] as React.RefObject<ITextField>)?.current?.select();
+            } else if (column?.key) {
+                const otherElement = this.inputRefs?.[rowIndex][column.key]?.current as unknown;
+                if (typeof (otherElement as HTMLElement).focus === 'function') {
+                    (otherElement as HTMLElement).focus();
+                }
+            }
+        });
     }
 
     private rerenderTable(): void {
-        if (this.tableRef.current) {
-            // this.tableRef.current.forceUpdate();
+        if (this.tableRef.current && !this.props.renderInputs) {
+            this.tableRef.current.forceUpdate();
         }
     }
 
