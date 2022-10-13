@@ -235,9 +235,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         const onClick = (e: React.MouseEvent<HTMLElement, MouseEvent> | null) => {
             const target = e?.target as HTMLElement;
             const targetTag = target?.tagName;
-            // if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) {
-            //     return;
-            // }
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag)) {
+                return;
+            }
             const { item, rowIndex, column } = this.activeElement;
             this._onCellClick(e, item, rowIndex || 0, column);
         };
@@ -292,12 +292,12 @@ export class UITable extends React.Component<UITableProps, UITableState> {
 
         this.activeElement = { item, rowIndex: rowIndex || 0, column };
 
-        if (this.props.renderInputs && column?.editable) {
-            const isDropdown = this.activeElement?.column?.columnControlType === ColumnControlType?.UIDropdown;
-            if (!isDropdown && this.state.editedCell?.column?.key !== this.activeElement?.column?.key) {
-                this.setState({ editedCell: this.activeElement });
-            }
-        }
+        // if (this.props.renderInputs && column?.editable) {
+        //     const isDropdown = this.activeElement?.column?.columnControlType === ColumnControlType?.UIDropdown;
+        //     if (!isDropdown && this.state.editedCell?.column?.key !== this.activeElement?.column?.key) {
+        //         this.setState({ editedCell: this.activeElement });
+        //     }
+        // }
     }
 
     private _onRenderRow: IDetailsListProps['onRenderRow'] = (props) => {
@@ -375,9 +375,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
 
         if (!isAlreadyInEdit) {
             this.setState({ editedCell: { rowIndex, item, column, errorMessage } });
-            if (!this.props.renderInputs) {
+            // if (!this.props.renderInputs) {
                 this.rerenderTable();
-            }
+            // }
         }
         requestAnimationFrame(() => {
             if (column?.columnControlType === ColumnControlType.UITextInput) {
@@ -397,7 +397,8 @@ export class UITable extends React.Component<UITableProps, UITableState> {
     }
 
     private rerenderTable(): void {
-        if (this.tableRef.current && !this.props.renderInputs) {
+        // if (this.tableRef.current && !this.props.renderInputs) {
+        if (this.tableRef.current) {
             this.tableRef.current.forceUpdate();
         }
     }
@@ -465,8 +466,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
     private onDocumentMousedown(e: React.MouseEvent): void {
         const target = e.target as HTMLElement; // needed for TSC
         if (
-            target.closest('.ms-TextField, .ms-ComboBox, .ms-ComboBox-option, .ui-DatePicker') &&
-            (!this.props.renderInputs || target.closest('.ms-ComboBox-option'))
+            target.closest('.ms-TextField, .ms-ComboBox, .ms-ComboBox-option, .ui-DatePicker')
+            //  &&
+            // (!this.props.renderInputs || target.closest('.ms-ComboBox-option'))
         ) {
             return;
         }
@@ -648,9 +650,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         if (column && typeof column.validate === 'function') {
             this.validateCell(newValue);
         }
-        if (this.props.renderInputs) {
-            this.saveCell(false, newValue);
-        }
+        // if (this.props.renderInputs) {
+        //     this.saveCell(false, newValue);
+        // }
     }
 
     private onComboBoxChange = (option?: IComboBoxOption): void => {
@@ -896,21 +898,29 @@ export class UITable extends React.Component<UITableProps, UITableState> {
      */
     private _onCellRender(item: UIDocument, rowIndex: number | undefined, column: UIColumn | undefined): JSX.Element {
         // inputs & dropdowns always visible
-        if (this.props.renderInputs && rowIndex !== undefined) {
-            return this.renderForInputs(item, rowIndex, column);
-        }
+        // if (this.props.renderInputs && rowIndex !== undefined) {
+        //     return this.renderForInputs(item, rowIndex, column);
+        // }
 
         // inputs visible only in "edit mode" (after cell click)
         const editedCell = this.state.editedCell;
         const itsThisRow = editedCell && editedCell.rowIndex === rowIndex;
         const itsThisCol = editedCell && editedCell.column?.key === column?.key;
-        const isCellInEditMode = itsThisRow && itsThisCol;
+        let isCellInEditMode = itsThisRow && itsThisCol;
+
+        // if (this.props.renderInputs) {
+        //     isCellInEditMode = true;
+        // }
 
         if (isCellInEditMode && rowIndex !== undefined) {
             if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
                 return this._renderBooleanSelect(item, rowIndex, column);
             } else if (column?.columnControlType === ColumnControlType.UIDatePicker) {
                 return this._renderDatePicker(item, rowIndex, column, column?.type === 'Date');
+            } else if (column?.columnControlType === ColumnControlType.UIDropdown) {
+                return this._renderDropdown(item, rowIndex, column);
+            } else if (column?.columnControlType === ColumnControlType.UIComboBox) {
+                return this._renderComboBox(item, rowIndex, column);
             } else {
                 return this._renderTextInput(item, rowIndex, column);
             }
