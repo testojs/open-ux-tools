@@ -69,11 +69,11 @@ function onSave(editedCell: any, newValue: any) {
 }
 
 function onSelectionChange(items: []) {
-    console.log('selected', items);
+    console.log('onSelectionChange', items);
 }
 
 function onSelectionChangeComboBox(items: []) {
-    console.log('selected', items);
+    console.log('onSelectionChangeComboBox', items);
 }
 
 function onChange(items: []) {

@@ -146,7 +146,11 @@ export class UITable extends React.Component<UITableProps, UITableState> {
             this.setState({ editedCell: undefined });
         }
 
-        if (typeof this.props.selectedRow !== 'undefined' && prevProps.selectedRow !== this.props.selectedRow) {
+        if (
+            typeof this.props.selectedRow !== 'undefined' &&
+            prevProps.selectedRow !== this.props.selectedRow &&
+            !this.props.renderInputs
+        ) {
             scrollToRow(this.props.selectedRow, this.tableRef?.current);
         }
 
@@ -173,7 +177,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
 
         const columnIsSelected = typeof this.state.selectedColumnId !== 'undefined';
         const selectedColumnDidChange = prevState.selectedColumnId !== this.state.selectedColumnId;
-        if (columnIsSelected && selectedColumnDidChange) {
+        if (columnIsSelected && selectedColumnDidChange && !this.props.renderInputs) {
             scrollToColumn(
                 this.state.selectedColumnId || '',
                 this.state.columns,
@@ -376,7 +380,7 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         if (!isAlreadyInEdit) {
             this.setState({ editedCell: { rowIndex, item, column, errorMessage } });
             // if (!this.props.renderInputs) {
-                this.rerenderTable();
+            this.rerenderTable();
             // }
         }
         requestAnimationFrame(() => {
@@ -716,13 +720,15 @@ export class UITable extends React.Component<UITableProps, UITableState> {
      */
     private _renderDropdown(item: UIDocument, rowIndex: number | undefined, column: UIColumn | undefined): any {
         const compRef = this._getInputRef(rowIndex, column) as React.RefObject<IDropdown>;
+        const options = column?.data.itemDropdownOptions
+            ? item[column?.data.itemDropdownOptions]
+            : column?.data.dropdownOptions;
         return (
             <UIDropdown
-                id={`dropdown_row${rowIndex}_col${column?.key}`}
                 hidden={item.hideCells ?? false}
                 placeholder="Select an option"
                 componentRef={compRef}
-                options={column?.data.dropdownOptions}
+                options={options}
                 defaultSelectedKey={
                     typeof column?.key === 'string' && item[column?.key]
                         ? item[column?.key]
@@ -753,9 +759,10 @@ export class UITable extends React.Component<UITableProps, UITableState> {
                         this.onDropdownCellValueChange(option, item, rowIndex, column);
                     }
                 }}
-                onClick={(e): void => {
-                    e.stopPropagation();
-                }}
+                // onClick={(e): void => {
+                //     e.stopPropagation();
+                // }}
+                onKeyDownCapture={this.onComboBoxKeyDownCapture}
                 onKeyDown={this.onKeyDown}
                 openMenuOnClick={true}
                 highlight={true}
@@ -908,9 +915,9 @@ export class UITable extends React.Component<UITableProps, UITableState> {
         const itsThisCol = editedCell && editedCell.column?.key === column?.key;
         let isCellInEditMode = itsThisRow && itsThisCol;
 
-        // if (this.props.renderInputs) {
-        //     isCellInEditMode = true;
-        // }
+        if (this.props.renderInputs) {
+            isCellInEditMode = true;
+        }
 
         if (isCellInEditMode && rowIndex !== undefined) {
             if (column?.columnControlType === ColumnControlType.UIBooleanSelect) {
